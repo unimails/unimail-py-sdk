@@ -2,7 +2,7 @@
 
 unimail 的 python 语言 sdk, 快速集成到你的项目
 
-[英文文档](README.md)
+[github](https://github.com/i-curve/unimail-py-sdk) [英文文档](README.md)
 
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
 
@@ -72,19 +72,19 @@ client.check_connect()
 
 init a client by key
 
-4. client.set_language(language :str) -> bool
+2. client.set_language(language :str) -> bool
 
 set language for the client,default is zh
 
-5. client.check_connect() -> bool
+3. client.check_connect() -> bool
 
 check the host and key is ok
 
-6. client.send_email(receiver :str, subject :str, content :str) -> Result
+4. client.send_email(receiver :str, subject :str, content :str) -> Result
 
 send email to receiver. if you have many receiver, you can concat the receiver by ";" or use BatchSendEmail
 
-7. client.batch_send_email(receivers :list, subject :str, content :str) -> Result
+5. client.batch_send_email(receivers :list, subject :str, content :str) -> Result
 
 like SendEmail, but receivers is a slice
 
