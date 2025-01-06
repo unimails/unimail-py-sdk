@@ -17,6 +17,12 @@ This is a Python SDK for Unimail. Quickly integrate into your project
 
 ## simple usage
 
+- pip install
+
+```shell
+pip install unimail-py-sdk
+```
+
 - init a unimail client
 
 you need a authorization key.

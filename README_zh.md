@@ -17,6 +17,12 @@ unimail 的 python 语言 sdk, 快速集成到你的项目
 
 ## 简单使用
 
+- pip 安装包
+
+```shell
+pip install unimail-py-sdk
+```
+
 - 初始化客户端
 
 你需要申请一个 key
