@@ -96,3 +96,13 @@ class Client:
             return Result(obj=result)
         except Exception as e:
             return Result.HttpError()
+
+    def send_email_async(self, receiver: str, subject: str, content: str) -> Result:
+        """todo"""
+        return self.send_email(receiver, subject, content)
+    def batch_send_email_async(self, receivers: list, subject: str, content: str):
+        """todo"""
+        return self.batch_send_email(receivers, subject, content)
+    def check_result(self, key: str):
+        """todo"""
+        return Result.HttpError()

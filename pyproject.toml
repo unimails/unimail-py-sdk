@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "unimail-py-sdk"
-version = "0.0.4"
+version = "0.1.2"
 description = "This is a Python SDK for Unimail. Quickly integrate into your project"
 keywords = [ "unimail", "unimail-py-sdk" ]
 authors = ["i-curve <i-curve@qq.com>"]
