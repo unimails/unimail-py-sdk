@@ -34,7 +34,7 @@ class Client:
 
     __supportLang = ["zh", "en", "vi", "th", "id", "gu"]
 
-    def __init__(self, key: str, host: str = "https://unimail-back.allcloud.top"):
+    def __init__(self, key: str, host: str = "https://uniapi.allcloud.top"):
         self.__host = host
         self.__key = key
         self.__lang = "zh"
@@ -54,7 +54,7 @@ class Client:
         """
         检查连接是否正常"""
         try:
-            result = requests.post(self.__host + "/api/email/checkConnection",
+            result = requests.post(self.__host + "/checkConnection",
                                    json={"authorization": self.__key},
                                    headers={"Content-Type": "application/json", "Accept-Language": self.__lang}).json()
             return result["code"] == 0
@@ -69,7 +69,7 @@ class Client:
         :param content: 内容
         """
         try:
-            result = requests.post(self.__host + "/api/email/sendEmail",
+            result = requests.post(self.__host + "/sendEmail",
                                    json={"authorization": self.__key,
                                          "receiver": receiver,
                                          "title": subject,
@@ -87,7 +87,7 @@ class Client:
         :param content: 内容
         """
         try:
-            result = requests.post(self.__host + "/api/email/batchSendEmail",
+            result = requests.post(self.__host + "/batchSendEmail",
                                    json={"authorization": self.__key,
                                          "receivers": receivers,
                                          "title": subject,
