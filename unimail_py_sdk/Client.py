@@ -1,11 +1,47 @@
-'''py
- ' @Author: i-curve
- ' @Date: 2025-01-04 22:01:42
- ' @Last Modified by: i-curve
- ' @Name:
-'''
-import requests
+"""Unimail Python SDK client (v2-compatible)."""
+
+from __future__ import annotations
+
 import json
+from dataclasses import dataclass, field
+
+import requests
+
+
+DOMAIN = "https://uniapi.allcloud.top"
+TIMEOUT_SECONDS = 120
+
+
+@dataclass
+class EmailAttachment:
+    name: str
+    file_attachment: bytes | None = None
+    url_attachment: str = ""
+
+
+@dataclass
+class UnimailReq:
+    from_name: str = ""
+    receivers: list[str] = field(default_factory=list)
+    cc: str = ""
+    bcc: str = ""
+    subject: str = ""
+    txt_content: str = ""
+    html_content: str = ""
+    attachments: list[EmailAttachment] = field(default_factory=list)
+
+    def append_attachment(self, email_attachment: EmailAttachment) -> None:
+        if email_attachment.file_attachment is None and not email_attachment.url_attachment:
+            raise ValueError("unimail: attachment is empty")
+        self.attachments.append(email_attachment)
+
+    def append_file(self, name: str, path: str) -> None:
+        with open(path, "rb") as file:
+            content = file.read()
+        self.append_attachment(EmailAttachment(name=name, file_attachment=content))
+
+    def append_uri(self, name: str, url: str) -> None:
+        self.append_attachment(EmailAttachment(name=name, url_attachment=url))
 
 
 class Result:
@@ -13,8 +49,8 @@ class Result:
         self.code = code
         self.msg = msg
         self.data = data
-        if obj is not None:
-            self.__dict__ = obj
+        if isinstance(obj, dict):
+            self.__dict__.update(obj)
 
     def is_success(self) -> bool:
         return self.code == 0
@@ -31,78 +67,79 @@ class Result:
 
 
 class Client:
+    __support_lang = ["zh", "en", "vi", "th", "id", "gu"]
 
-    __supportLang = ["zh", "en", "vi", "th", "id", "gu"]
-
-    def __init__(self, key: str, host: str = "https://uniapi.allcloud.top"):
-        self.__host = host
+    def __init__(self, key: str, host: str = DOMAIN, timeout: int = TIMEOUT_SECONDS):
+        self.__host = host.rstrip("/")
         self.__key = key
         self.__lang = "zh"
+        self.__timeout = timeout
 
     def set_language(self, lang: str) -> bool:
-        """
-        设置语言
-        :param lang: 语言 ["zh", "en", "vi", "th", "id", "gu"]
-        :return: 是否设置成功
-        """
-        if lang not in Client.__supportLang:
+        if lang not in Client.__support_lang:
             return False
         self.__lang = lang
         return True
 
     def check_connect(self) -> bool:
-        """
-        检查连接是否正常"""
         try:
-            result = requests.post(self.__host + "/checkConnection",
-                                   json={"authorization": self.__key},
-                                   headers={"Content-Type": "application/json", "Accept-Language": self.__lang}).json()
-            return result["code"] == 0
-        except Exception as e:
+            result = requests.post(
+                self.__host + "/v2/checkConnection",
+                json={"authorization": self.__key},
+                headers={"Content-Type": "application/json", "Accept-Language": self.__lang},
+                timeout=self.__timeout,
+            ).json()
+            return result.get("code") == 0
+        except Exception:
             return False
 
-    def send_email(self, receiver: str, subject: str, content: str) -> Result:
-        """
-        发送邮件
-        :param receiver: 收件人
-        :param subject: 主题
-        :param content: 内容
-        """
-        try:
-            result = requests.post(self.__host + "/sendEmail",
-                                   json={"authorization": self.__key,
-                                         "receiver": receiver,
-                                         "title": subject,
-                                         "content": content},
-                                   headers={"Content-Type": "application/json", "Accept-Language": self.__lang}).json()
-            return Result(obj=result)
-        except Exception as e:
-            return Result.HttpError()
+    def send_email(self, req: UnimailReq) -> Result:
+        if len(req.receivers) == 0:
+            return Result(400, "receivers is required")
+        if not req.subject:
+            return Result(400, "subject is required")
+        if not req.txt_content and not req.html_content:
+            return Result(400, "txt_content or html_content is required")
 
-    def batch_send_email(self, receivers: list, subject: str, content: str):
-        """
-        发送邮件
-        :param receivers: 收件人
-        :param subject: 主题
-        :param content: 内容
-        """
-        try:
-            result = requests.post(self.__host + "/batchSendEmail",
-                                   json={"authorization": self.__key,
-                                         "receivers": receivers,
-                                         "title": subject,
-                                         "content": content},
-                                   headers={"Content-Type": "application/json", "Accept-Language": self.__lang}).json()
-            return Result(obj=result)
-        except Exception as e:
-            return Result.HttpError()
+        form_data: list[tuple[str, str]] = [
+            ("authorization", self.__key),
+            ("receiver", ";".join(req.receivers)),
+            ("from", req.from_name),
+            ("subject", req.subject),
+        ]
+        if req.cc:
+            form_data.append(("cc", req.cc))
+        if req.bcc:
+            form_data.append(("bcc", req.bcc))
+        if req.txt_content:
+            form_data.append(("txtContent", req.txt_content))
+        if req.html_content:
+            form_data.append(("htmlContent", req.html_content))
 
-    def send_email_async(self, receiver: str, subject: str, content: str) -> Result:
-        """todo"""
-        return self.send_email(receiver, subject, content)
-    def batch_send_email_async(self, receivers: list, subject: str, content: str):
-        """todo"""
-        return self.batch_send_email(receivers, subject, content)
-    def check_result(self, key: str):
-        """todo"""
-        return Result.HttpError()
+        files: list[tuple[str, tuple[str, bytes, str]]] = []
+        for idx, attachment in enumerate(req.attachments):
+            form_data.append((f"attachments[{idx}].name", attachment.name))
+            if attachment.file_attachment is not None:
+                files.append(
+                    (
+                        f"attachments[{idx}].fileAttachment",
+                        (attachment.name, attachment.file_attachment, "application/octet-stream"),
+                    )
+                )
+            elif attachment.url_attachment:
+                form_data.append((f"attachments[{idx}].urlAttachment", attachment.url_attachment))
+
+        try:
+            response = requests.post(
+                self.__host + "/v2/sendEmail",
+                data=form_data,
+                files=files if files else None,
+                headers={"Accept-Language": self.__lang},
+                timeout=self.__timeout,
+            )
+            payload = response.json()
+            if isinstance(payload, dict):
+                return Result(obj=payload)
+            return Result.HttpError()
+        except Exception:
+            return Result.HttpError()

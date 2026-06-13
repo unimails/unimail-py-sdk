@@ -1,11 +1,13 @@
 '''py
- ' @Author: i-curve
+ ' @Author: allcloud.top
  ' @Date: 2025-01-05 00:22:50
- ' @Last Modified by: i-curve
+ ' @Last Modified by: allcloud.top
  ' @Name: 
 '''
 import unittest
-from unimail_py_sdk.Client import Client, Result
+
+from unimail_py_sdk import UnimailReq, Client, Result
+# from unimail_py_sdk.Client import Client, Result
 
 client: Client = Client("")
 
@@ -24,15 +26,16 @@ class TestClient(unittest.TestCase):
         self.assertEqual(result, True)
 
     def test_send_email(self):
-        result: Result = client.send_email(
-            "email1", "测试标题", "测试内容 in python")
-        for key, val in result.__dict__.items():
-            print(f"{key}: {val}")
-        self.assertEqual(result.code, 0)
-
-    def test_batch_send_email(self):
-        result: Result = client.batch_send_email(
-            ["email1", "email2"], "测试标题", "测试内容 in python")
+        req = UnimailReq(
+            # from_name= "",
+            receivers=["email"],
+            # cc=["email"],
+            # bcc=["email"],
+            subject="test",
+            html_content="test",
+        )
+        req.append_file("att1.txt", path = "tests/attachment.txt")
+        result: Result = client.send_email(req)
         for key, val in result.__dict__.items():
             print(f"{key}: {val}")
         self.assertEqual(result.code, 0)

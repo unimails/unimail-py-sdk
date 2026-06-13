@@ -1,23 +1,23 @@
 # unimal-py-sdk
 
-> 当前分支sdk的版本是v1, 此分支不再进行功能更新, 如果新用户请参考主分支master
+> 当前sdk的版本是v2, 如果你需要用以前的v1版本, 请切换v1分支
 
 unimail 的 python 语言 sdk, 快速集成到你的项目
 
-[github](https://github.com/i-curve/unimail-py-sdk) [英文文档](README.md)
+[github](https://github.com/unimails/unimail-py-sdk) [英文文档](README.md)
 
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
 
 <!-- code_chunk_output -->
 
 - [unimal-py-sdk](#unimal-py-sdk)
-  - [简单使用](#简单使用)
+  - [使用](#使用)
   - [api docs](#api-docs)
   - [支持的语言](#支持的语言)
 
 <!-- /code_chunk_output -->
 
-## 简单使用
+## 使用
 
 - pip 安装包
 
@@ -32,46 +32,32 @@ pip install unimail-py-sdk
 main.py
 
 ```python
-from unimail-py-sdk import Client, Result
+from unimail_py_sdk import UnimailReq, Client, Result
 
 # please input your key here
 key: str = ""
 
 client: Client = Client(key)
 
-client.check_connect()
+result = client.check_connect()
+print(result)
 ```
 
 - 发邮件
 
-例如
-收件人: aaa@gmail.com  
-邮件标题: email subject  
-邮件正文: this is a email content
-
 ```python
-    result: Result := client.send_email("aaa@gmail.com", "email subject", "this is a email content")
-
-    if result.is_success:
-        print("send email success")
-    else:
-        print(f"send email fail, error: {result.msg}")
-```
-
-- 批量发送邮件
-
-例如
-收件人: aaa@gmail.com,bbb@gmail.com  
-邮件标题: email subject  
-邮件正文: this is a email content
-
-```python
-    result: Result := client.batch_send_email("aaa@gmail.com", "email subject", "this is a email content")
-
-    if result.is_success:
-        print("send email success")
-    else:
-        print(f"send email fail, error: {result.msg}")
+    req = UnimailReq(
+        # from_name= "",
+        receivers=["email"],
+        # cc=["email"],
+        # bcc=["email"],
+        subject="test",
+        html_content="test",
+    )
+    req.append_file("att1.txt", path = "tests/attachment.txt")
+    result: Result = client.send_email(req)
+    for key, val in result.__dict__.items():
+        print(f"{key}: {val}")
 ```
 
 ## api docs
@@ -88,13 +74,9 @@ set language for the client,default is zh
 
 check the host and key is ok
 
-4. client.send_email(receiver :str, subject :str, content :str) -> Result
+4. client.send_email(req :UnimailReq) -> Result
 
-send email to receiver. if you have many receiver, you can concat the receiver by ";" or use BatchSendEmail
-
-5. client.batch_send_email(receivers :list, subject :str, content :str) -> Result
-
-like SendEmail, but receivers is a slice
+please see usage
 
 ## 支持的语言
 
@@ -111,4 +93,4 @@ sdk 默认返回的 msg 为中文
 
 - 提示
 
-如果想要使用 unimail sdk, 请通过邮件联系作者 i-curve@qq.com
+如果想要使用 unimail sdk, 请通过邮件联系作者 admin@allcloud.top

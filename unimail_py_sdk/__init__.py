@@ -1,1 +1,1 @@
-from .Client import Client, Result
+from .Client import Client, Result, EmailAttachment, UnimailReq
