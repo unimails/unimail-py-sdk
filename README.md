@@ -1,5 +1,7 @@
 # unimal-py-sdk
 
+> The current branch SDK version is v1. This branch will no longer receive functional updates. For new users, please refer to the main branch "master".
+
 This is a Python SDK for Unimail. Quickly integrate into your project
 
 [github](https://github.com/i-curve/unimail-py-sdk) [中文文档](README_zh.md)
