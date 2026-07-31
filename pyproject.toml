@@ -1,6 +1,6 @@
 [project]
 name = "unimail-py-sdk"
-version = "1.0.0"
+version = "1.1.0"
 description = "This is a Python SDK for Unimail. Quickly integrate into your project"
 keywords = [ "unimail", "unimail-py-sdk" ]
 authors = [{name= "allcloud.top", email=  "admin@allcloud.top"}]

@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 import requests
 
 
-DOMAIN = "https://uniapi.allcloud.top"
+DOMAIN = "https://uniapi.allcloud.top/unimail"
 TIMEOUT_SECONDS = 120
 
 
@@ -21,6 +21,7 @@ class EmailAttachment:
 
 @dataclass
 class UnimailReq:
+    route: str = ""
     from_name: str = ""
     receivers: list[str] = field(default_factory=list)
     cc: str = ""
@@ -107,6 +108,8 @@ class Client:
             ("from", req.from_name),
             ("subject", req.subject),
         ]
+        if req.route:
+            form_data.append(("route", req.route))
         if req.cc:
             form_data.append(("cc", req.cc))
         if req.bcc:

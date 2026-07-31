@@ -27,6 +27,7 @@ class TestClient(unittest.TestCase):
 
     def test_send_email(self):
         req = UnimailReq(
+            route="testxx",
             # from_name= "",
             receivers=["email"],
             # cc=["email"],
